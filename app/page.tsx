@@ -39,14 +39,24 @@ const getLanguageAlias = (lang: string): string => {
   return map[lang] || 'text';
 };
 
-const getLanguageColor = (lang: string): string => {
-  const colors: Record<string, string> = {
-    'Python': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    'JavaScript': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    'C++': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-    'TypeScript': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  };
-  return colors[lang] || 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+const getLanguageColor = (lang: string, isDark: boolean = true): string => {
+  if (isDark) {
+    const colors: Record<string, string> = {
+      'Python': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+      'JavaScript': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+      'C++': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+      'TypeScript': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    };
+    return colors[lang] || 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+  } else {
+    const colors: Record<string, string> = {
+      'Python': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      'JavaScript': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      'C++': 'bg-blue-100 text-blue-800 border-blue-300',
+      'TypeScript': 'bg-blue-100 text-blue-800 border-blue-300',
+    };
+    return colors[lang] || 'bg-gray-100 text-gray-800 border-gray-300';
+  }
 };
 
 export default function Home() {
@@ -62,6 +72,7 @@ export default function Home() {
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedGeneration, setSelectedGeneration] = useState<Generation | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   const fetchHistory = async (page: number = 1) => {
     setIsLoadingHistory(true);
@@ -83,7 +94,18 @@ export default function Home() {
 
   useEffect(() => {
     fetchHistory(1);
+    // Load theme preference from localStorage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === 'dark');
+    }
   }, []);
+
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -165,13 +187,20 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-black' : 'bg-gray-50'}`}>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <header className="mb-8 text-center">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent mb-3">
+        <header className="mb-8 text-center relative">
+          <button
+            onClick={toggleTheme}
+            className="absolute top-0 right-0 p-2 rounded-lg bg-gray-900/50 hover:bg-gray-800/50 border border-gray-800 transition-all duration-200"
+            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {isDarkMode ? '☀️' : '🌙'}
+          </button>
+          <h1 className={`text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent mb-3 ${!isDarkMode ? 'from-cyan-600 via-blue-600 to-purple-600' : ''}`}>
             Code Generation Copilot
           </h1>
-          <p className="text-gray-400 text-lg">
+          <p className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             Generate code using AI from natural language prompts
           </p>
         </header>
@@ -179,9 +208,9 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Corner: History */}
           <div className="lg:col-span-3">
-            <div className="bg-black rounded-xl shadow-2xl border-2 border-gray-800/80 p-4 sticky top-4 ring-1 ring-cyan-500/10">
-              <h2 className="text-lg font-bold mb-4 text-white flex items-center gap-2">
-                <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
+            <div className={`${isDarkMode ? 'bg-black border-gray-800/80' : 'bg-white border-gray-300'} rounded-xl shadow-2xl border-2 p-4 sticky top-4 ring-1 ${isDarkMode ? 'ring-cyan-500/10' : 'ring-gray-200'}`}>
+              <h2 className={`text-lg font-bold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                <span className={`w-2 h-2 rounded-full animate-pulse ${isDarkMode ? 'bg-cyan-400' : 'bg-cyan-600'}`}></span>
                 History
               </h2>
 
@@ -194,28 +223,32 @@ export default function Home() {
                 }}
                 className={`w-full text-left p-3 rounded-lg border-2 transition-all duration-200 mb-4 ${
                   !selectedGeneration && !generatedCode
-                    ? 'border-cyan-500/60 bg-gray-900/50 shadow-lg shadow-cyan-500/20 ring-1 ring-cyan-500/30'
-                    : 'border-gray-800/60 hover:border-cyan-500/40 hover:bg-gray-900/30 hover:shadow-md hover:ring-1 hover:ring-cyan-500/20'
+                    ? isDarkMode
+                      ? 'border-cyan-500/60 bg-gray-900/50 shadow-lg shadow-cyan-500/20 ring-1 ring-cyan-500/30'
+                      : 'border-cyan-500/60 bg-cyan-50 shadow-lg shadow-cyan-500/20 ring-1 ring-cyan-500/30'
+                    : isDarkMode
+                    ? 'border-gray-800/60 hover:border-cyan-500/40 hover:bg-gray-900/30 hover:shadow-md hover:ring-1 hover:ring-cyan-500/20'
+                    : 'border-gray-300 hover:border-cyan-500/40 hover:bg-gray-50 hover:shadow-md hover:ring-1 hover:ring-cyan-500/20'
                 }`}
               >
                 <div className="flex items-center gap-2">
                   <span className="text-lg">➕</span>
-                  <span className="text-sm font-semibold text-white">New Chat</span>
+                  <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>New Chat</span>
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Generate new code</p>
+                <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Generate new code</p>
               </button>
 
               {isLoadingHistory ? (
-                <div className="text-center py-8 text-gray-400">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mx-auto"></div>
+                <div className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <div className={`animate-spin rounded-full h-8 w-8 border-b-2 mx-auto ${isDarkMode ? 'border-cyan-400' : 'border-cyan-600'}`}></div>
                   <p className="mt-2 text-sm">Loading...</p>
                 </div>
               ) : historyError ? (
-                <div className="bg-red-950/50 border border-red-900/50 text-red-400 px-4 py-3 rounded-lg text-sm">
+                <div className={`${isDarkMode ? 'bg-red-950/50 border-red-900/50 text-red-400' : 'bg-red-50 border-red-200 text-red-800'} border px-4 py-3 rounded-lg text-sm`}>
                   {historyError}
                 </div>
               ) : history.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className={`text-center py-8 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
                   <p className="text-sm">No generations yet.</p>
                   <p className="text-xs mt-1">Create your first one!</p>
                 </div>
@@ -228,21 +261,25 @@ export default function Home() {
                         onClick={() => handleHistoryClick(gen)}
                         className={`w-full text-left p-3 rounded-lg border transition-all duration-200 ${
                           selectedGeneration?.id === gen.id
-                            ? 'border-cyan-500/60 bg-gray-900/50 shadow-lg shadow-cyan-500/20 ring-1 ring-cyan-500/30 scale-[1.02]'
-                            : 'border-gray-800/60 hover:border-gray-700/80 hover:bg-gray-900/30 hover:shadow-md hover:ring-1 hover:ring-gray-700/30'
+                            ? isDarkMode
+                              ? 'border-cyan-500/60 bg-gray-900/50 shadow-lg shadow-cyan-500/20 ring-1 ring-cyan-500/30 scale-[1.02]'
+                              : 'border-cyan-500/60 bg-cyan-50 shadow-lg shadow-cyan-500/20 ring-1 ring-cyan-500/30 scale-[1.02]'
+                            : isDarkMode
+                            ? 'border-gray-800/60 hover:border-gray-700/80 hover:bg-gray-900/30 hover:shadow-md hover:ring-1 hover:ring-gray-700/30'
+                            : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 hover:shadow-md hover:ring-1 hover:ring-gray-300'
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
-                              <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold border ${getLanguageColor(gen.language)}`}>
+                              <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold border ${getLanguageColor(gen.language, isDarkMode)}`}>
                                 {gen.language}
                               </span>
                             </div>
-                            <p className="text-xs font-semibold text-gray-200 line-clamp-3 leading-relaxed">
+                            <p className={`text-xs font-semibold line-clamp-3 leading-relaxed ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
                               {gen.prompt}
                             </p>
-                            <p className="text-[10px] text-gray-500 mt-2">
+                            <p className={`text-[10px] mt-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
                               {new Date(gen.createdAt).toLocaleDateString()}
                             </p>
                           </div>
@@ -253,21 +290,21 @@ export default function Home() {
 
                   {/* Pagination */}
                   {pagination && pagination.totalPages > 1 && (
-                    <div className="flex justify-between items-center pt-4 border-t border-gray-800/80">
+                    <div className={`flex justify-between items-center pt-4 border-t ${isDarkMode ? 'border-gray-800/80' : 'border-gray-300'}`}>
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={!pagination.hasPrev}
-                        className="px-3 py-1.5 bg-gradient-to-r from-cyan-600/60 to-blue-600/60 hover:from-cyan-600/80 hover:to-blue-600/80 disabled:from-gray-900 disabled:to-gray-900 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-all duration-200 shadow-md shadow-cyan-500/10 disabled:shadow-none"
+                        className={`px-3 py-1.5 bg-gradient-to-r from-cyan-600/60 to-blue-600/60 hover:from-cyan-600/80 hover:to-blue-600/80 disabled:${isDarkMode ? 'from-gray-900 to-gray-900' : 'from-gray-300 to-gray-300'} disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-all duration-200 shadow-md shadow-cyan-500/10 disabled:shadow-none`}
                       >
                         Prev
                       </button>
-                      <span className="text-xs text-gray-400 font-medium">
+                      <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         {pagination.page}/{pagination.totalPages}
                       </span>
                       <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={!pagination.hasNext}
-                        className="px-3 py-1.5 bg-gradient-to-r from-cyan-600/60 to-blue-600/60 hover:from-cyan-600/80 hover:to-blue-600/80 disabled:from-gray-900 disabled:to-gray-900 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-all duration-200 shadow-md shadow-cyan-500/10 disabled:shadow-none"
+                        className={`px-3 py-1.5 bg-gradient-to-r from-cyan-600/60 to-blue-600/60 hover:from-cyan-600/80 hover:to-blue-600/80 disabled:${isDarkMode ? 'from-gray-900 to-gray-900' : 'from-gray-300 to-gray-300'} disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-all duration-200 shadow-md shadow-cyan-500/10 disabled:shadow-none`}
                       >
                         Next
                       </button>
@@ -282,37 +319,45 @@ export default function Home() {
           <div className="lg:col-span-9 space-y-6">
             {/* Input Form - Hide when history item is selected */}
             {!selectedGeneration && (
-            <div className="bg-black rounded-xl shadow-2xl border border-gray-900/50 p-6">
-              <h2 className="text-2xl font-bold mb-6 text-white flex items-center gap-2">
+            <div className={`${isDarkMode ? 'bg-black border-gray-900/50' : 'bg-white border-gray-300'} rounded-xl shadow-2xl border p-6`}>
+              <h2 className={`text-2xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 <span className="w-3 h-3 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"></span>
                 Enter Your Prompt
               </h2>
               
               <div className="space-y-5">
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-300">
+                  <label className={`block text-sm font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Prompt
                   </label>
                   <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="e.g., Write a Python function to reverse a string"
-                    className="w-full px-4 py-3 border-2 border-gray-900 bg-gray-950/50 rounded-xl focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white placeholder-gray-600 resize-none transition-all duration-200"
+                    className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 resize-none transition-all duration-200 ${
+                      isDarkMode 
+                        ? 'border-gray-900 bg-gray-950/50 text-white placeholder-gray-600' 
+                        : 'border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-500'
+                    }`}
                     rows={4}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-300">
+                  <label className={`block text-sm font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Language
                   </label>
                   <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-900 bg-gray-950/50 rounded-xl focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 text-white transition-all duration-200 cursor-pointer"
+                    className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all duration-200 cursor-pointer ${
+                      isDarkMode 
+                        ? 'border-gray-900 bg-gray-950/50 text-white' 
+                        : 'border-gray-300 bg-gray-50 text-gray-900'
+                    }`}
                   >
                     {LANGUAGES.map((lang) => (
-                      <option key={lang} value={lang} className="bg-gray-950">
+                      <option key={lang} value={lang} className={isDarkMode ? 'bg-gray-950' : 'bg-white'}>
                         {lang}
                       </option>
                     ))}
@@ -335,7 +380,7 @@ export default function Home() {
                 </button>
 
                 {error && (
-                  <div className="bg-red-950/50 border-2 border-red-900/50 text-red-400 px-4 py-3 rounded-xl text-sm">
+                  <div className={`${isDarkMode ? 'bg-red-950/50 border-red-900/50 text-red-400' : 'bg-red-50 border-red-200 text-red-800'} border-2 px-4 py-3 rounded-xl text-sm`}>
                     {error}
                   </div>
                 )}
@@ -345,7 +390,7 @@ export default function Home() {
 
             {/* Code Display - Show only selected history OR newly generated code */}
             {(selectedGeneration || generatedCode) && (
-              <div className="bg-black rounded-xl shadow-2xl border border-gray-900/50 p-6">
+              <div className={`${isDarkMode ? 'bg-black border-gray-900/50' : 'bg-white border-gray-300'} rounded-xl shadow-2xl border p-6`}>
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex-1">
                     {selectedGeneration ? (
@@ -353,13 +398,13 @@ export default function Home() {
                         {selectedGeneration.prompt}
                       </h2>
                     ) : (
-                      <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                      <h2 className={`text-2xl font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                         <span className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"></span>
                         Generated Code
                       </h2>
                     )}
                     {!selectedGeneration && (
-                      <p className="text-sm text-gray-400 mt-2">
+                      <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         Language: {language}
                       </p>
                     )}
@@ -371,7 +416,7 @@ export default function Home() {
                     {copiedId === (selectedGeneration?.id || 'current') ? '✓ Copied!' : '📋 Copy'}
                   </button>
                 </div>
-                <div className="rounded-xl overflow-hidden border-2 border-gray-900 shadow-inner">
+                <div className={`rounded-xl overflow-hidden border-2 shadow-inner ${isDarkMode ? 'border-gray-900' : 'border-gray-200'}`}>
                   <SyntaxHighlighter
                     language={getLanguageAlias(selectedGeneration?.language || language)}
                     style={vscDarkPlus}
@@ -380,9 +425,9 @@ export default function Home() {
                     {selectedGeneration?.code || generatedCode || ''}
                   </SyntaxHighlighter>
                 </div>
-                <div className="mt-4 flex items-center gap-4 text-sm text-gray-400">
+                <div className={`mt-4 flex items-center gap-4 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 bg-cyan-400 rounded-full"></span>
+                    <span className={`w-2 h-2 rounded-full ${isDarkMode ? 'bg-cyan-400' : 'bg-cyan-600'}`}></span>
                     {selectedGeneration?.language || language}
                   </span>
                   {selectedGeneration && (
