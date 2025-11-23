@@ -60,7 +60,7 @@ export default function Home() {
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedGeneration, setSelectedGeneration] = useState<Generation | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+
 
   const fetchHistory = async (page: number = 1) => {
     setIsLoadingHistory(true);
@@ -82,18 +82,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchHistory(1);
-    // Load theme preference from localStorage
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setIsDarkMode(savedTheme === 'dark');
-    }
   }, []);
-
-  const toggleTheme = () => {
-    const newTheme = !isDarkMode;
-    setIsDarkMode(newTheme);
-    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
-  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -177,22 +166,14 @@ export default function Home() {
   return (
     <div 
       className="min-h-screen transition-colors duration-300"
-      style={isDarkMode ? { background: 'linear-gradient(145deg, #2E3237, #3A3F46)' } : { background: '#f8fafc' }}
+      style={{ background: 'linear-gradient(145deg, #6B7280, #737A85)' }}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <header className="mb-8 text-center relative">
-          <button
-            onClick={toggleTheme}
-            className={`absolute top-0 right-0 p-2 rounded-lg border transition-all duration-200 ${isDarkMode ? 'border-[#2A2F34]' : 'bg-slate-100 hover:bg-slate-200 border-slate-200'}`}
-            style={isDarkMode ? { backgroundColor: '#1F2328' } : {}}
-            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {isDarkMode ? '☀️' : '🌙'}
-          </button>
-          <h1 className={`text-5xl font-bold mb-3 ${isDarkMode ? 'text-[#FFFFFF]' : 'text-slate-900'}`}>
+          <h1 className="text-5xl font-bold mb-3 text-white">
             Code Generation Copilot
           </h1>
-          <p className={`text-lg ${isDarkMode ? 'text-[#A1A7B0]' : 'text-slate-600'}`}>
+          <p className="text-lg text-slate-300">
             Generate code using AI from natural language prompts
           </p>
         </header>
@@ -201,13 +182,13 @@ export default function Home() {
           {/* Left Corner: History */}
           <div className="lg:col-span-3">
             <div 
-              className={`rounded-xl shadow-2xl border p-4 sticky top-4 ${isDarkMode ? 'border-[#2A2F34]' : 'bg-white border-slate-200'}`}
-              style={isDarkMode ? { backgroundColor: '#1F2328' } : {}}
+              className="rounded-xl border border-[#4A4D52] p-4 sticky top-4"
+              style={{ backgroundColor: '#4A5058', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)' }}
             >
-              <h2 className={`text-lg font-bold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-[#FFFFFF]' : 'text-slate-800'}`}>
+              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-white">
                 <span 
                   className="w-2 h-2 rounded-full"
-                  style={isDarkMode ? { backgroundColor: '#40FF67' } : { backgroundColor: '#10b981' }}
+                  style={{ backgroundColor: '#22C55E' }}
                 ></span>
                 History
               </h2>
@@ -219,38 +200,34 @@ export default function Home() {
                   setGeneratedCode(null);
                   setPrompt('');
                 }}
-                className={`w-full text-left p-3 rounded-lg border transition-all duration-200 mb-4 ${
+                className={`w-full text-left p-3 rounded-lg border border-[#4A4D52] transition-all duration-200 mb-4 ${
                   !selectedGeneration && !generatedCode
-                    ? isDarkMode
-                      ? 'border-[#2A2F34]'
-                      : 'border-blue-500/60 bg-blue-50'
-                    : isDarkMode
-                    ? 'border-[#2A2F34] hover:bg-[#2A2F34]/30'
-                    : 'border-slate-200 hover:bg-slate-50'
+                    ? 'border-[#4F87FF]'
+                    : 'hover:bg-[#3A3C40]'
                 }`}
-                style={isDarkMode && (!selectedGeneration && !generatedCode) ? { backgroundColor: '#2A2F34' } : {}}
+                style={!selectedGeneration && !generatedCode ? { backgroundColor: '#4A5563' } : {}}
               >
                 <div className="flex items-center gap-2">
                   <span className="text-lg">➕</span>
-                  <span className={`text-sm font-semibold ${isDarkMode ? 'text-[#FFFFFF]' : 'text-slate-800'}`}>New Chat</span>
+                  <span className="text-sm font-semibold text-white">New Chat</span>
                 </div>
-                <p className={`text-xs mt-1 ${isDarkMode ? 'text-[#A1A7B0]' : 'text-slate-600'}`}>Generate new code</p>
+                <p className="text-xs mt-1 text-slate-400">Generate new code</p>
               </button>
 
               {isLoadingHistory ? (
-                <div className={`text-center py-8 ${isDarkMode ? 'text-[#A1A7B0]' : 'text-slate-600'}`}>
+                <div className="text-center py-8 text-slate-400">
                   <div 
                     className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto"
-                    style={isDarkMode ? { borderColor: '#3A7BFF' } : { borderColor: '#2563eb' }}
+                    style={{ borderColor: '#4F87FF' }}
                   ></div>
                   <p className="mt-2 text-sm">Loading...</p>
                 </div>
               ) : historyError ? (
-                <div className={`${isDarkMode ? 'bg-red-950/50 border-red-900/50 text-red-400' : 'bg-red-50 border-red-200 text-red-800'} border px-4 py-3 rounded-lg text-sm`}>
+                <div className="bg-red-900/20 border-red-800 text-red-300 border px-4 py-3 rounded-lg text-sm">
                   {historyError}
                 </div>
               ) : history.length === 0 ? (
-                <div className={`text-center py-8 ${isDarkMode ? 'text-[#A1A7B0]' : 'text-slate-500'}`}>
+                <div className="text-center py-8 text-slate-400">
                   <p className="text-sm">No generations yet.</p>
                   <p className="text-xs mt-1">Create your first one!</p>
                 </div>
@@ -262,32 +239,28 @@ export default function Home() {
                         key={gen.id}
                         onClick={() => handleHistoryClick(gen)}
                         className={`w-full text-left p-3 rounded-lg border transition-all duration-200 ${
-                          selectedGeneration?.id === gen.id
-                            ? isDarkMode
-                              ? 'border-[#2A2F34]'
-                              : 'border-blue-500 bg-blue-50'
-                            : isDarkMode
-                            ? 'border-[#2A2F34] hover:bg-[#2A2F34]/30'
-                            : 'border-slate-200 hover:bg-slate-50'
+ selectedGeneration?.id === gen.id
+                            ? 'border-[#4F87FF]'
+                            : 'border-[#4A4D52] hover:bg-[#3A3C40]'
                         }`}
-                        style={isDarkMode ? { backgroundColor: selectedGeneration?.id === gen.id ? '#2A2F34' : 'transparent' } : {}}
+                        style={{ backgroundColor: selectedGeneration?.id === gen.id ? '#3A3C40' : 'transparent' }}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
                               <span 
-                                className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold border ${getLanguageColor(gen.language, isDarkMode)}`}
-                                style={isDarkMode ? { color: '#6DA2FF', backgroundColor: 'transparent' } : {}}
+                                className="inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold border border-[#2A2F34]"
+                                style={{ color: '#93B4FF', backgroundColor: 'rgba(79, 135, 255, 0.1)', borderColor: '#4F87FF' }}
                               >
                                 {gen.language}
                               </span>
                             </div>
-                            <p className={`text-xs font-semibold line-clamp-3 leading-relaxed ${isDarkMode ? 'text-[#FFFFFF]' : 'text-slate-800'}`}>
+                            <p className="text-xs font-semibold line-clamp-3 leading-relaxed text-white">
                               {gen.prompt}
                             </p>
                             <p 
-                              className={`text-[10px] mt-2 ${isDarkMode ? '' : 'text-slate-500'}`}
-                              style={isDarkMode ? { color: '#B5BAC4' } : {}}
+                              className="text-[10px] mt-2"
+                              style={{ color: '#94A3B8' }}
                             >
                               {new Date(gen.createdAt).toLocaleDateString()}
                             </p>
@@ -300,24 +273,22 @@ export default function Home() {
                   {/* Pagination */}
                   {pagination && pagination.totalPages > 1 && (
                     <div 
-                      className={`flex justify-between items-center pt-4 border-t ${isDarkMode ? '' : 'border-slate-200'}`}
-                      style={isDarkMode ? { borderColor: '#2A2F34' } : {}}
+                      className="flex justify-between items-center pt-4 border-t"
+                      style={{ borderColor: '#4A4D52' }}
                     >
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={!pagination.hasPrev}
                         className={`px-3 py-1.5 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-all duration-200 disabled:shadow-none`}
-                        style={isDarkMode ? { 
-                          backgroundColor: pagination.hasPrev ? '#3A7BFF' : '#2A2F34',
-                        } : {
-                          backgroundColor: pagination.hasPrev ? '#2563eb' : '#cbd5e1',
+                        style={{ 
+                          backgroundColor: pagination.hasPrev ? '#5B6B7A' : '#3A3C40',
                         }}
                       >
                         Prev
                       </button>
                       <span 
-                        className={`text-xs font-medium ${isDarkMode ? '' : 'text-slate-600'}`}
-                        style={isDarkMode ? { color: '#A1A7B0' } : {}}
+                        className="text-xs font-medium"
+                        style={{ color: '#94A3B8' }}
                       >
                         {pagination.page}/{pagination.totalPages}
                       </span>
@@ -325,10 +296,8 @@ export default function Home() {
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={!pagination.hasNext}
                         className={`px-3 py-1.5 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-all duration-200 disabled:shadow-none`}
-                        style={isDarkMode ? { 
-                          backgroundColor: pagination.hasNext ? '#3A7BFF' : '#2A2F34',
-                        } : {
-                          backgroundColor: pagination.hasNext ? '#2563eb' : '#cbd5e1',
+                        style={{ 
+                          backgroundColor: pagination.hasNext ? '#5B6B7A' : '#3A3C40',
                         }}
                       >
                         Next
@@ -345,13 +314,13 @@ export default function Home() {
             {/* Input Form - Hide when history item is selected */}
             {!selectedGeneration && (
             <div 
-              className={`rounded-xl shadow-2xl border p-6 ${isDarkMode ? 'border-[#2A2F34]' : 'bg-white border-slate-200'}`}
-              style={isDarkMode ? { backgroundColor: '#1F2328' } : {}}
+              className="rounded-xl border border-[#4A4D52] p-6"
+              style={{ backgroundColor: '#778899', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)' }}
             >
-              <h2 className={`text-2xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? 'text-[#FFFFFF]' : 'text-slate-800'}`}>
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-white">
                 <span 
                   className="w-3 h-3 rounded-full"
-                  style={isDarkMode ? { backgroundColor: '#40FF67' } : { backgroundColor: '#10b981' }}
+                  style={{ backgroundColor: '#22C55E' }}
                 ></span>
                 Enter Your Prompt
               </h2>
@@ -359,8 +328,8 @@ export default function Home() {
               <div className="space-y-5">
                 <div>
                   <label 
-                    className={`block text-sm font-semibold mb-2 ${isDarkMode ? '' : 'text-slate-700'}`}
-                    style={isDarkMode ? { color: '#C6CBD3' } : {}}
+                    className="block text-sm font-semibold mb-2"
+                    style={{ color: '#E2E8F0' }}
                   >
                     Prompt
                   </label>
@@ -368,39 +337,31 @@ export default function Home() {
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="e.g., Write a Python function to reverse a string"
-                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 resize-none transition-all duration-200 ${
-                      isDarkMode 
-                        ? 'border-[#2A2F34] text-[#FFFFFF] placeholder-[#A1A7B0]' 
-                        : 'border-slate-200 bg-slate-50 text-gray-900 placeholder-slate-500'
-                    }`}
-                    style={isDarkMode ? { backgroundColor: '#2A2F34' } : {}}
+                    className="w-full px-4 py-3 border border-[#4A4D52] rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 resize-none transition-all duration-200 text-white placeholder-slate-400"
+                    style={{ backgroundColor: '#3A3C40' }}
                     rows={4}
                   />
                 </div>
 
                 <div>
                   <label 
-                    className={`block text-sm font-semibold mb-2 ${isDarkMode ? '' : 'text-slate-700'}`}
-                    style={isDarkMode ? { color: '#C6CBD3' } : {}}
+                    className="block text-sm font-semibold mb-2"
+                    style={{ color: '#E2E8F0' }}
                   >
                     Language
                   </label>
                   <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 cursor-pointer ${
-                      isDarkMode 
-                        ? 'border-[#2A2F34] text-[#FFFFFF]' 
-                        : 'border-slate-200 bg-slate-50 text-gray-900'
-                    }`}
-                    style={isDarkMode ? { backgroundColor: '#2A2F34' } : {}}
+                    className="w-full px-4 py-3 border border-[#4A4D52] rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-200 cursor-pointer text-white"
+                    style={{ backgroundColor: '#3A3C40' }}
                   >
                     {LANGUAGES.map((lang) => (
                       <option 
                         key={lang} 
                         value={lang} 
-                        className={isDarkMode ? '' : 'bg-white'}
-                        style={isDarkMode ? { backgroundColor: '#1F2328', color: '#FFFFFF' } : {}}
+                        className=""
+                        style={{ backgroundColor: '#3A3C40', color: '#FFFFFF' }}
                       >
                         {lang}
                       </option>
@@ -412,11 +373,9 @@ export default function Home() {
                   onClick={handleGenerate}
                   disabled={isGenerating}
                   className="w-full hover:opacity-90 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg disabled:shadow-none transform hover:scale-[1.02] disabled:scale-100"
-                  style={isDarkMode ? { 
-                    backgroundColor: isGenerating ? '#2A2F34' : '#3A7BFF',
-                    boxShadow: isGenerating ? 'none' : '0 4px 6px -1px rgba(58, 123, 255, 0.2)',
-                  } : {
-                    backgroundColor: isGenerating ? '#cbd5e1' : '#2563eb',
+                  style={{ 
+                    backgroundColor: isGenerating ? '#3A3C40' : '#5B6B7A',
+                    boxShadow: isGenerating ? 'none' : '0 4px 6px -1px rgba(91, 107, 122, 0.4)',
                   }}
                 >
                   {isGenerating ? (
@@ -430,7 +389,7 @@ export default function Home() {
                 </button>
 
                 {error && (
-                  <div className={`${isDarkMode ? 'bg-red-950/50 border-red-900/50 text-red-400' : 'bg-red-50 border-red-200 text-red-800'} border-2 px-4 py-3 rounded-xl text-sm`}>
+                  <div className="bg-red-900/20 border-red-800 text-red-300 border-2 px-4 py-3 rounded-xl text-sm">
                     {error}
                   </div>
                 )}
@@ -441,28 +400,28 @@ export default function Home() {
             {/* Code Display - Show only selected history OR newly generated code */}
             {(selectedGeneration || generatedCode) && (
               <div 
-                className={`rounded-xl shadow-2xl border p-6 ${isDarkMode ? 'border-[#2A2F34]' : 'bg-white border-slate-200'}`}
-                style={isDarkMode ? { backgroundColor: '#1F2328' } : {}}
+                className="rounded-xl border border-[#4A4D52] p-6"
+                style={{ backgroundColor: '#778899', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)' }}
               >
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex-1">
                     {selectedGeneration ? (
-                      <h2 className="text-xl font-bold mb-2" style={isDarkMode ? { color: '#FFFFFF' } : {}}>
+                      <h2 className="text-xl font-bold mb-2" style={{ color: '#FFFFFF' }}>
                         {selectedGeneration.prompt}
                       </h2>
                     ) : (
-                      <h2 className={`text-2xl font-bold flex items-center gap-2 ${isDarkMode ? '' : 'text-slate-800'}`} style={isDarkMode ? { color: '#FFFFFF' } : {}}>
+                      <h2 className="text-2xl font-bold flex items-center gap-2" style={{ color: '#FFFFFF' }}>
                         <span 
                           className="w-3 h-3 rounded-full"
-                          style={isDarkMode ? { backgroundColor: '#40FF67' } : { backgroundColor: '#10b981' }}
+                          style={{ backgroundColor: '#22C55E' }}
                         ></span>
                         Generated Code
                       </h2>
                     )}
                     {!selectedGeneration && (
                       <p 
-                        className={`text-sm mt-2 ${isDarkMode ? '' : 'text-slate-600'}`}
-                        style={isDarkMode ? { color: '#A1A7B0' } : {}}
+                        className="text-sm mt-2"
+                        style={{ color: '#CBD5E1' }}
                       >
                         Language: {language}
                       </p>
@@ -471,14 +430,14 @@ export default function Home() {
                   <button
                     onClick={() => handleCopy(selectedGeneration?.code || generatedCode || '', selectedGeneration?.id || 'current')}
                     className="px-4 py-2 hover:opacity-90 text-white rounded-lg text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105"
-                    style={isDarkMode ? { backgroundColor: '#3A7BFF' } : { backgroundColor: '#2563eb' }}
+                    style={{ backgroundColor: '#5B6B7A' }}
                   >
                     {copiedId === (selectedGeneration?.id || 'current') ? '✓ Copied!' : '📋 Copy'}
                   </button>
                 </div>
                 <div 
-                  className={`rounded-xl overflow-hidden border shadow-inner ${isDarkMode ? '' : 'border-gray-200'}`}
-                  style={isDarkMode ? { borderColor: '#2A2F34' } : {}}
+                  className="rounded-xl overflow-hidden border shadow-inner"
+                  style={{ borderColor: '#4A4D52' }}
                 >
                   <SyntaxHighlighter
                     language={getLanguageAlias(selectedGeneration?.language || language)}
@@ -489,20 +448,20 @@ export default function Home() {
                   </SyntaxHighlighter>
                 </div>
                 <div 
-                  className={`mt-4 flex items-center gap-4 text-sm ${isDarkMode ? '' : 'text-slate-600'}`}
-                  style={isDarkMode ? { color: '#A1A7B0' } : {}}
+                  className="mt-4 flex items-center gap-4 text-sm"
+                  style={{ color: '#94A3B8' }}
                 >
                   <span className="flex items-center gap-1">
                     <span 
                       className="w-2 h-2 rounded-full"
-                      style={isDarkMode ? { backgroundColor: '#40FF67' } : { backgroundColor: '#10b981' }}
+                      style={{ backgroundColor: '#22C55E' }}
                     ></span>
                     {selectedGeneration?.language || language}
                   </span>
                   {selectedGeneration && (
                     <>
                       <span>•</span>
-                      <span style={isDarkMode ? { color: '#B5BAC4' } : {}}>{new Date(selectedGeneration.createdAt).toLocaleString()}</span>
+                      <span style={{ color: '#94A3B8' }}>{new Date(selectedGeneration.createdAt).toLocaleString()}</span>
                     </>
                   )}
                 </div>
